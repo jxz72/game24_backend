@@ -10,27 +10,22 @@ class GameService:
         Creates new game
         Returns ID of the game
         """
-        new_game = Game()
-        db.session.add(new_game)
+        game = Game()
+        db.session.add(game)
         db.session.flush()
 
         new_game_state_1 = GameState(
-            game_id=new_game.id,  # Link the game state to the new game
+            game_id=game.id,  # Link the game state to the new game
             order=0,
             board=["9", '6', '4', '1'],
         )
         db.session.add(new_game_state_1)
         db.session.commit()
 
-        new_game.latest_state_id = new_game_state_1.id
+        game.latest_state_id = new_game_state_1.id
         db.session.commit()
 
-
-        print(f"Game {new_game.id} created with states:")
-        for state in new_game.game_states:
-            print(state)
-
-        return new_game.id
+        return cls._format_response(game=game, message="Game Successfully Created", status=GameStatuses.IN_PROGRESS)
 
     @classmethod
     def get_game(cls, game_id: str):
@@ -72,32 +67,13 @@ class GameService:
         new_board_list = list(new_board)
         cls._create_game_state(game=game, board=new_board_list)
 
-        return new_board_list 
+        return cls._format_response(game=game, message="move made successfully", status=GameStatuses.IN_PROGRESS)
 
-
-    def _create_game_state(game: Game, board: list):
-        new_order = game.current_state_order + 1
-        new_game_state = GameState(
-            game_id = game.id,
-            order=new_order,
-            board = board
-        )
-        db.session.add(new_game_state)
-        db.session.flush()
-
-        game.current_state_order = new_order
-        game.latest_state_id = new_game_state.id
-
-        db.session.commit()
 
     @classmethod
     def undo(cls, game: Game):
         if game.current_state_order == 0:
-            return {
-                "status": GameStatuses.COMPLETED.value,
-                "message": "There are no steps to undo",
-                "board": game.latest_state.board,
-            }
+            return cls._format_response(game=game, status=GameStatuses.IN_PROGRESS, message="There are no steps to undo")
 
         current_state = GameState.query.get(game.latest_state_id)
 
@@ -118,10 +94,27 @@ class GameService:
             raise Exception("Alert, undo attempted but not updated")
         
         
-        return {
-            "status": GameStatuses.IN_PROGRESS.value,
-            "message": "Undo completed",
-            "board": game.latest_state.board,
-        }
-            
+        return cls._format_response(game=game, status=GameStatuses.IN_PROGRESS, message="Undo Completed")
 
+    def _create_game_state(game: Game, board: list):
+        new_order = game.current_state_order + 1
+        new_game_state = GameState(
+            game_id = game.id,
+            order=new_order,
+            board = board
+        )
+        db.session.add(new_game_state)
+        db.session.flush()
+
+        game.current_state_order = new_order
+        game.latest_state_id = new_game_state.id
+
+        db.session.commit()
+    
+    def _format_response(game: Game, status: GameStatuses, message: str):
+        return {
+            "game_id": game.id,
+            "status": status.value,
+            "message": message,
+            "board": game.latest_state.board
+        }

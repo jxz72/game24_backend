@@ -22,15 +22,8 @@ class Game(db.Model):
     )
 
     def get_latest_state(self):
-        print("YO YO YO")
         print(f"{self.latest_state_id}")
         return GameState.query.get(self.latest_state_id)
-        # game_states = select(GameState).where(GameState.game_id == self.id)
-        # print(f"Game States: {game_states}")
-        # max_index = 0
-        # curr_game
-        # for game_state in game_states:
-
     
     def __repr__(self):
         return f'<Game {self.id}>'

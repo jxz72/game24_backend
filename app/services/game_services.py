@@ -4,8 +4,8 @@ from models.game import Game, GameState
 from app.constants import VALID_OPERATIONS, GameStatuses
 
 class GameService:
-    @classmethod
-    def create_game(cls) -> str:
+    @staticmethod
+    def create_game() -> str:
         """
         Creates new game
         Returns ID of the game
@@ -25,17 +25,10 @@ class GameService:
         game.latest_state_id = new_game_state_1.id
         db.session.commit()
 
-        return cls._format_response(game=game, message="Game Successfully Created", status=GameStatuses.IN_PROGRESS)
+        return GameService._format_response(game=game, message="Game Successfully Created", status=GameStatuses.IN_PROGRESS)
 
-    @classmethod
-    def get_game(cls, game_id: str):
-        try:
-            return Game.query.get(game_id)
-        except:
-            raise Exception("Game ID not valid")
-
-    @classmethod
-    def make_move(cls, game: Game, number1: str, number2: str, operator: str) -> list:
+    @staticmethod
+    def make_move(game: Game, number1: str, number2: str, operator: str) -> list:
         try:
             number1_int = int(number1)
             number2_int = int(number2)
@@ -65,15 +58,15 @@ class GameService:
         new_board.append(str(new_number))
 
         new_board_list = list(new_board)
-        cls._create_game_state(game=game, board=new_board_list)
+        GameService._create_game_state(game=game, board=new_board_list)
 
-        return cls._format_response(game=game, message="move made successfully", status=GameStatuses.IN_PROGRESS)
+        return GameService._format_response(game=game, message="move made successfully", status=GameStatuses.IN_PROGRESS)
 
 
-    @classmethod
-    def undo(cls, game: Game):
+    @staticmethod
+    def undo(game: Game):
         if game.current_state_order == 0:
-            return cls._format_response(game=game, status=GameStatuses.IN_PROGRESS, message="There are no steps to undo")
+            return GameService._format_response(game=game, status=GameStatuses.IN_PROGRESS, message="There are no steps to undo")
 
         current_state = GameState.query.get(game.latest_state_id)
 
@@ -94,8 +87,9 @@ class GameService:
             raise Exception("Alert, undo attempted but not updated")
         
         
-        return cls._format_response(game=game, status=GameStatuses.IN_PROGRESS, message="Undo Completed")
+        return GameService._format_response(game=game, status=GameStatuses.IN_PROGRESS, message="Undo Completed")
 
+    @staticmethod
     def _create_game_state(game: Game, board: list):
         new_order = game.current_state_order + 1
         new_game_state = GameState(
@@ -111,6 +105,7 @@ class GameService:
 
         db.session.commit()
     
+    @staticmethod
     def _format_response(game: Game, status: GameStatuses, message: str):
         return {
             "game_id": game.id,
@@ -118,3 +113,10 @@ class GameService:
             "message": message,
             "board": game.latest_state.board
         }
+    
+    @staticmethod
+    def get_game(game_id: str):
+        game = Game.query.get(game_id)
+        if not game:
+            raise Exception("Game ID not valid")
+        return game

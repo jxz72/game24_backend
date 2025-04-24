@@ -1,7 +1,7 @@
 import copy
 from models import db
 from models.game import Game, GameState
-from app.constants import VALID_OPERATIONS
+from app.constants import VALID_OPERATIONS, GameStatuses
 
 class GameService:
     @classmethod
@@ -31,6 +31,13 @@ class GameService:
             print(state)
 
         return new_game.id
+
+    @classmethod
+    def get_game(cls, game_id: str):
+        try:
+            return Game.query.get(game_id)
+        except:
+            raise Exception("Game ID not valid")
 
     @classmethod
     def make_move(cls, game: Game, number1: str, number2: str, operator: str) -> list:
@@ -85,7 +92,11 @@ class GameService:
     @classmethod
     def undo(cls, game: Game):
         if game.current_state_order == 0:
-            return "There are no steps to undo."
+            return {
+                "status": GameStatuses.COMPLETED.value,
+                "message": "There are no steps to undo",
+                "board": game.get_latest_state().board,
+            }
 
         current_state = GameState.query.get(game.latest_state_id)
 
@@ -106,6 +117,10 @@ class GameService:
             raise Exception("Alert, undo attempted but not updated")
         
         
-        return previous_state.board
+        return {
+            "status": GameStatuses.IN_PROGRESS.value,
+            "message": "Undo completed",
+            "board": game.get_latest_state().board,
+        }
             
 

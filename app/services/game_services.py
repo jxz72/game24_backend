@@ -53,9 +53,10 @@ class GameService:
         if operator == 'div' and number1_int / number2_int != number1_int // number2_int:
             raise Exception("Can't divide evenly")
         
-        curr_game_state: GameState = game.get_latest_state()
+        curr_game_state: GameState = game.latest_state
         curr_board = curr_game_state.board
 
+        #handle frequency too. 
         if number1 not in curr_board or number2 not in curr_board:
             raise Exception("Number not in board")
         
@@ -95,7 +96,7 @@ class GameService:
             return {
                 "status": GameStatuses.COMPLETED.value,
                 "message": "There are no steps to undo",
-                "board": game.get_latest_state().board,
+                "board": game.latest_state.board,
             }
 
         current_state = GameState.query.get(game.latest_state_id)
@@ -120,7 +121,7 @@ class GameService:
         return {
             "status": GameStatuses.IN_PROGRESS.value,
             "message": "Undo completed",
-            "board": game.get_latest_state().board,
+            "board": game.latest_state.board,
         }
             
 

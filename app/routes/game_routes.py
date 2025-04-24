@@ -18,8 +18,8 @@ def view_game():
     game_id = request.args.get("game_id")
     game = GameService.get_game(game_id=game_id)
     
-    curr_board = game.get_latest_state().board
-    
+    curr_board = game.latest_state.board
+
     return {
         "game_id": game_id,
         "board": curr_board,

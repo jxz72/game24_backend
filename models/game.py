@@ -21,8 +21,8 @@ class Game(db.Model):
         foreign_keys='GameState.game_id'
     )
 
-    def get_latest_state(self) -> 'GameState':
-        print(f"{self.latest_state_id}")
+    @property
+    def latest_state(self) -> 'GameState':
         return GameState.query.get(self.latest_state_id)
     
     def __repr__(self):

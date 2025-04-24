@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 import os
 
 from models import db
-from app.game import bp
+from app.routes.game_routes import bp
 
 
 def create_app():

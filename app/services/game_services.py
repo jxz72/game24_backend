@@ -11,7 +11,6 @@ class GameService:
     def create_game(board: Optional[list[str]] = None) -> str:
         """
         Creates new game
-        Returns ID of the game
         """
         game = Game()
         db.session.add(game)

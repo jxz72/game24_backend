@@ -1,11 +1,14 @@
+from typing import Optional
 import copy
+import random
+
 from models import db
 from models.game import Game, GameState
-from app.constants import VALID_OPERATIONS, GameStatuses
+from app.constants import VALID_NUMBERS, VALID_OPERATIONS, GameStatuses
 
 class GameService:
     @staticmethod
-    def create_game() -> str:
+    def create_game(board: Optional[list[str]] = None) -> str:
         """
         Creates new game
         Returns ID of the game
@@ -14,11 +17,13 @@ class GameService:
         db.session.add(game)
         db.session.flush()
 
+        if not board:
+            board = GameService._create_random_board()
+
         new_game_state_1 = GameState(
-            game_id=game.id,  # Link the game state to the new game
+            game_id=game.id,
             order=0,
-            # board=["9", '6', '4', '1'],
-            board = ['24', '0']
+            board = board,
         )
         db.session.add(new_game_state_1)
         db.session.commit()
@@ -90,9 +95,15 @@ class GameService:
         else:
             raise Exception("Alert, undo attempted but not updated")
         
-        
         return GameService._format_response(game=game, status=GameStatuses.IN_PROGRESS, message="Undo Completed")
 
+    @staticmethod
+    def get_game(game_id: str):
+        game = Game.query.get(game_id)
+        if not game:
+            raise Exception("Game ID not valid")
+        return game
+    
     @staticmethod
     def _create_game_state(game: Game, board: list):
         new_order = game.current_state_order + 1
@@ -117,10 +128,11 @@ class GameService:
             "message": message,
             "board": game.latest_state.board
         }
-    
+
     @staticmethod
-    def get_game(game_id: str):
-        game = Game.query.get(game_id)
-        if not game:
-            raise Exception("Game ID not valid")
-        return game
+    def _create_random_board() -> list[str]:
+        board = []
+        for _ in range(4):
+            num = random.choice(VALID_NUMBERS)
+            board.append(num)
+        return board

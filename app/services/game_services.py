@@ -82,3 +82,30 @@ class GameService:
 
         db.session.commit()
 
+    @classmethod
+    def undo(cls, game: Game):
+        if game.current_state_order == 0:
+            return "There are no steps to undo."
+
+        current_state = GameState.query.get(game.latest_state_id)
+
+        previous_state = (
+                GameState.query
+                .filter_by(game_id=game.id, order=game.current_state_order-1)
+                .first()
+            )
+                
+        if current_state and previous_state:
+            db.session.delete(current_state)
+
+            game.latest_state_id = previous_state.id
+            game.current_state_order = previous_state.order
+
+            db.session.commit()
+        else:
+            raise Exception("Alert, undo attempted but not updated")
+        
+        
+        return previous_state.board
+            
+

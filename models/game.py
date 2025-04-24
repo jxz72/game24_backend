@@ -21,7 +21,7 @@ class Game(db.Model):
         foreign_keys='GameState.game_id'
     )
 
-    def get_latest_state(self):
+    def get_latest_state(self) -> 'GameState':
         print(f"{self.latest_state_id}")
         return GameState.query.get(self.latest_state_id)
     

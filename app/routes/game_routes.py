@@ -36,3 +36,14 @@ def make_move():
         raise Exception("Game ID not found")
 
     return GameService.make_move(game=game, number1=number1, number2=number2, operator=operator)
+
+@bp.route('/undo', methods=['POST', 'GET'])
+def undo_move():
+    game_id = request.args.get("game_id")
+
+    if game_id is None:
+        raise Exception("Game ID invalid")
+
+    game = Game.query.get(game_id)
+
+    return GameService.undo(game)

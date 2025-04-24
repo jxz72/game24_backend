@@ -47,7 +47,7 @@ class GameService:
             raise Exception("Can't divide evenly")
         
         curr_game_state: GameState = game.get_latest_state()
-        curr_board = set(curr_game_state.board)
+        curr_board = curr_game_state.board
 
         if number1 not in curr_board or number2 not in curr_board:
             raise Exception("Number not in board")
@@ -59,7 +59,7 @@ class GameService:
 
         op = VALID_OPERATIONS[operator]
         new_number = op(number1_int, number2_int)
-        new_board.add(str(new_number))
+        new_board.append(str(new_number))
 
         new_board_list = list(new_board)
         cls._create_game_state(game=game, board=new_board_list)

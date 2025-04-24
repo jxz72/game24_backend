@@ -17,7 +17,8 @@ class GameService:
         new_game_state_1 = GameState(
             game_id=game.id,  # Link the game state to the new game
             order=0,
-            board=["9", '6', '4', '1'],
+            # board=["9", '6', '4', '1'],
+            board = ['24', '0']
         )
         db.session.add(new_game_state_1)
         db.session.commit()
@@ -60,6 +61,9 @@ class GameService:
         new_board_list = list(new_board)
         GameService._create_game_state(game=game, board=new_board_list)
 
+        if len(new_board) == 1 and new_board[0] == '24':
+            return GameService._format_response(game=game, message="Congrats!", status=GameStatuses.COMPLETED)
+            
         return GameService._format_response(game=game, message="move made successfully", status=GameStatuses.IN_PROGRESS)
 
 

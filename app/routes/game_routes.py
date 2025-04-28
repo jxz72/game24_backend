@@ -7,11 +7,8 @@ from app.services.game_services import GameService
 bp = Blueprint("call", __name__)
 @bp.route('/create_game', methods=['GET', 'POST'])
 def create_game():
-    try:
-        game_id = GameService.create_game()
-        return game_id
-    except:
-        raise Exception("Game could not be created")
+    game_id = GameService.create_game()
+    return game_id
 
 @bp.route('/game', methods=['GET'])
 def view_game():

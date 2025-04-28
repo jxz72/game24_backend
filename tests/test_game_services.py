@@ -1,8 +1,10 @@
 from unittest.mock import patch
-from models.game import Game
+from models.game import Game, GameState
 from app.services.game_services import GameService
 import pytest
 from app.app import create_app
+
+from app.constants import GameStatuses
 
 
 @pytest.fixture
@@ -14,10 +16,36 @@ def app_context():
 
 @pytest.fixture
 def game1():
-    game = Game(board=["6", "4", "3", "8"])
+    game_state = GameState(board=['9', '4', '2', '1'])
+    game = Game()
+    print(game_state)
+    print(game)
+    game.latest_state_id=game_state.id
+    game.current_state_order=game_state.order
+    assert game.current_state_order == 0
+
+    return game
+
     
 class TestGameService():
     pass
+    
+    # def test_format_response(self, game1):
+        # sample_message = "Sample Message Here"
+
+        # response = GameService._format_response(
+        #     game=game1,
+        #     status=GameStatuses.IN_PROGRESS,
+        #     message=sample_message,
+        # )
+        # assert response == {
+        #     "game_id": game1.id,
+        #     "status": GameStatuses.value,
+        #     "message": sample_message,
+        #     "board": game1.board
+        # }
+
+
     # @pytest.fixture(autouse=True)
     # def test_transaction(app_context):
     #     from app.models import db

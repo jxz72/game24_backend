@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, jsonify
 from dotenv import load_dotenv
 import os
 
@@ -8,6 +8,11 @@ from app.routes.game_routes import bp
 
 def create_app():
     app = Flask(__name__)
+
+    @app.errorhandler(Exception)
+    def handle_exception(error):
+        return jsonify({"error": str(error)}), 500
+
 
     load_dotenv()
     LOCAL_DB_URL = os.getenv('LOCAL_DB_URL') 

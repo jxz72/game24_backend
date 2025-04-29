@@ -1,4 +1,4 @@
-from flask import Blueprint, request
+from flask import Blueprint, request, jsonify
 from models.game import Game, GameState
 from models import db
 from app.constants import VALID_OPERATIONS
@@ -8,7 +8,7 @@ bp = Blueprint("call", __name__)
 @bp.route('/create_game', methods=['GET', 'POST'])
 def create_game():
     game_id = GameService.create_game()
-    return game_id
+    return jsonify({"game_id": game_id})
 
 @bp.route('/game', methods=['GET'])
 def view_game():

@@ -1,5 +1,6 @@
 from flask import Flask, jsonify
 from dotenv import load_dotenv
+from flask_cors import CORS
 import os
 
 from models import db
@@ -8,6 +9,7 @@ from app.routes.game_routes import bp
 
 def create_app():
     app = Flask(__name__)
+    CORS(app)
 
     @app.errorhandler(Exception)
     def handle_exception(error):

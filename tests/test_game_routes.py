@@ -1,5 +1,6 @@
 from app.app import create_app
 from pytest import fixture
+import pytest
 from unittest.mock import MagicMock, PropertyMock
 from app.services.game_services import GameService
 from app.constants import GameStatuses
@@ -96,5 +97,24 @@ class TestGameRoutes:
         assert response.status_code == 200
         assert response.get_json() == {"game_id": game_id, "status": GameStatuses.IN_PROGRESS.value, "board": ['9', '3', '1', '10'], "message": "move made successfully"}
 
+    @pytest.mark.parametrize("game_id, number1, number2, operator, expected", [
+        (None, "1", "3", "+", {'error': 'Game ID required'}),
+        ("65c83135-18a7-4556-9bd2-d15b77532133", None, "3", "-", {'error': "Number1 required"}),
+        ("65c83135-18a7-4556-9bd2-d15b77532133", "7", None, "/", {'error': "Number2 required"}),
+        ("65c83135-18a7-4556-9bd2-d15b77532133", "9", "3", None, {'error': "Operator required"}),
+    ])
+    def test_make_move_missing_params(self, client_app, game_id, number1, number2, operator, expected):
+        params = {}
+        if game_id:
+            params["game_id"] = game_id
+        if number1:
+            params["number1"] = number1
+        if number2:
+            params["number2"] = number2
+        if operator:
+            params["operator"] = operator
 
-        
+        query_string = '&'.join(f"{k}={v}" for k, v in params.items())
+        response = client_app.post(f'/move?{query_string}')
+
+        assert response.get_json() == expected

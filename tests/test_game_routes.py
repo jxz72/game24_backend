@@ -56,3 +56,26 @@ class TestGameRoutes:
         response = client_app.get('/game?game_id=65c83135-18a7-4556-9bd2-d15b77532133')
         assert response.status_code == 200
         assert response.get_json() == {'board': ['9', '3', '1', '10'], 'game_id': "65c83135-18a7-4556-9bd2-d15b77532133"}
+    
+    def test_view_game_route_fail(self, mocker, client_app):
+        mock_get_game = mocker.patch(
+            'app.services.game_services.GameService.get_game',
+            side_effect=Exception("There was a problem with mock get game")
+        )
+        response = client_app.get('/game?game_id=65c83135-18a7-4556-9bd2-d15b77532133')
+        mock_get_game.assert_called_once()
+        assert response.status_code == 500
+        assert response.get_json() == {'error': 'There was a problem with mock get game'}
+
+    def test_view_game_route_no_game_id(self, mocker, client_app):
+        response = client_app.get('/game')
+        assert response.status_code == 400
+        assert response.get_json() == {'error': "Game ID not provided"}
+
+
+
+        
+
+
+
+        

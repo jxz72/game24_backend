@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, abort
 from models.game import Game, GameState
 from models import db
 from app.constants import VALID_OPERATIONS
@@ -13,8 +13,11 @@ def create_game():
 @bp.route('/game', methods=['GET'])
 def view_game():
     game_id = request.args.get("game_id")
+    if not game_id:
+        abort(400, description="Game ID not provided")
     game = GameService.get_game(game_id=game_id)
     
+
     curr_board = game.latest_state.board
 
     return {

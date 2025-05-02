@@ -11,9 +11,7 @@ def create_app():
     app = Flask(__name__)
     CORS(app)
 
-    @app.errorhandler(Exception)
-    def handle_exception(error):
-        return jsonify({"error": str(error)}), 500
+    handle_errors(app)
 
 
     load_dotenv()
@@ -34,3 +32,12 @@ def create_app():
         return "HOME PAGE HA"
     return app
 
+def handle_errors(app):
+    @app.errorhandler(Exception)
+    def handle_exception(error):
+        return jsonify({"error": str(error)}), 500
+
+    @app.errorhandler(400)
+    def bad_request(error):
+        response = jsonify(error=str(error.description)), 400
+        return response

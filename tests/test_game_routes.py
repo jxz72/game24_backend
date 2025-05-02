@@ -1,12 +1,24 @@
 from app.app import create_app
 from pytest import fixture
+from unittest.mock import MagicMock, PropertyMock
 
 @fixture
 def client_app():
     app = create_app()
     app.testing = True
     return app.test_client()
-    
+
+@fixture
+def mock_game():
+    game = MagicMock()
+
+    mock_state = MagicMock()
+    mock_state.board = ["9", "3", "1", "10"]
+
+    type(game).latest_state = PropertyMock(return_value=mock_state)
+
+    return game
+
 
 class TestGameRoutes:
     def test_create_game_route(self, client_app, mocker):
@@ -26,10 +38,21 @@ class TestGameRoutes:
             'app.services.game_services.GameService.create_game',
             side_effect=Exception("Random Exception Message here!")
         )
-        # mock_create_game.side_effect = Exception
 
         response = client_app.post('/create_game')
 
         mock_create_game.assert_called_once()
 
         assert response.status_code == 500
+        assert response.get_json() == {'error': 'Random Exception Message here!'}
+
+    def test_view_game_route(self, client_app, mock_game, mocker):
+        mock_get_game = mocker.patch(
+            'app.services.game_services.GameService.get_game'
+        )
+
+        mock_get_game.return_value = mock_game
+
+        response = client_app.get('/game?game_id=65c83135-18a7-4556-9bd2-d15b77532133')
+        assert response.status_code == 200
+        assert response.get_json() == {'board': ['9', '3', '1', '10'], 'game_id': "65c83135-18a7-4556-9bd2-d15b77532133"}

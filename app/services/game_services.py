@@ -97,7 +97,7 @@ class GameService:
         return GameService._format_response(game=game, status=GameStatuses.IN_PROGRESS, message="Undo Completed")
 
     @staticmethod
-    def get_game(game_id: str):
+    def get_game(game_id: str) -> Game:
         game = Game.query.get(game_id)
         if not game:
             raise Exception("Game ID not valid")

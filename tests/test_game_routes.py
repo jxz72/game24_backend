@@ -1,6 +1,8 @@
 from app.app import create_app
 from pytest import fixture
 from unittest.mock import MagicMock, PropertyMock
+from app.services.game_services import GameService
+from app.constants import GameStatuses
 
 @fixture
 def client_app():
@@ -11,6 +13,7 @@ def client_app():
 @fixture
 def mock_game():
     game = MagicMock()
+    game.id = "65c83135-18a7-4556-9bd2-d15b77532133"
 
     mock_state = MagicMock()
     mock_state.board = ["9", "3", "1", "10"]
@@ -67,15 +70,31 @@ class TestGameRoutes:
         assert response.status_code == 500
         assert response.get_json() == {'error': 'There was a problem with mock get game'}
 
-    def test_view_game_route_no_game_id(self, mocker, client_app):
+    def test_view_game_route_no_game_id(self, client_app):
         response = client_app.get('/game')
         assert response.status_code == 400
         assert response.get_json() == {'error': "Game ID not provided"}
 
+    def test_make_move_happy_path(self, mocker, mock_game, client_app):
+        mock_get_game = mocker.patch(
+            'app.services.game_services.GameService.get_game'
+        )
+        mock_get_game.return_value = mock_game
 
+        mock_make_move = mocker.patch(
+            'app.services.game_services.GameService.make_move'
+        )
+        mock_make_move.return_value = GameService._format_response(game=mock_game, message="move made successfully", status=GameStatuses.IN_PROGRESS)
 
-        
+        game_id = "65c83135-18a7-4556-9bd2-d15b77532133"
+        number1 = "4"
+        operator = "*"
+        number2 = "8"
 
+        response = client_app.post(f'/move?game_id={game_id}&number1={number1}&number2={number2}&operator={operator}')
+
+        assert response.status_code == 200
+        assert response.get_json() == {"game_id": game_id, "status": GameStatuses.IN_PROGRESS.value, "board": ['9', '3', '1', '10'], "message": "move made successfully"}
 
 
         

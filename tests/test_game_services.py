@@ -4,51 +4,15 @@ from app.services.game_services import GameService
 import pytest
 from app.app import create_app
 
-
 from app.constants import GameStatuses
-
-
-# @pytest.fixture
-# def app_context():
-#     app = create_app()
-#     with app.app_context():
-#         # yield is a fancy way of using the with block and doing nothing but waiting
-#         yield
-
-# @pytest.fixture
-# def game1():
-#     game_state = GameState(board=['9', '4', '2', '1'])
-#     game = Game()
-#     print(game_state)
-#     print(game)
-#     game.latest_state_id=game_state.id
-#     game.current_state_order=game_state.order
-#     assert game.current_state_order == 0
-
-#     return game
-
-# @pytest.fixture
-# def mock_game_with_state_factory(mocker):
-#     def _create(board: list[str]):
-#         sample_game = Game(id="65c83135-18a7-4556-9bd2-d15b77532133")
-#         sample_game_state = GameState(board=board)
-
-#         mocker.patch.object(Game, 'latest_state', new_callable=PropertyMock, return_value = sample_game_state)         
-#         mocker.patch("app.services.game_services.GameService._create_game_state")
-        
-#         return sample_game
-#     return _create
-        
 
 class TestGameService():
     
-
     def test_create_game_service(self, mocker):
         game_mock = mocker.Mock()
         game_mock.id = "65c83135-18a7-4556-9bd2-d15b77532133"
         game_mock.latest_state.board = ['9', '2', '3', '1']
 
-        
         game_state_mock = mocker.Mock()
         game_state_mock.id = "ddd1bde8-5edc-4419-b290-3c42915c63b9" 
 
@@ -102,100 +66,18 @@ class TestGameService():
             "status": expected_status
         }
 
-        
+    @pytest.mark.parametrize(
+        "initial_board, number1, number2, operator, expected_error",
+        [
+            (['10', '8', '7', '2'], '10', '8', 'div', Exception("Can't divide evenly")),
+            (['10', '8', '7', '2'], 'hey', '2', 'div', Exception("number isn't a valid number"))
+        ]
+    ) 
+    def test_make_move_service_errors(self, mocker, initial_board, number1, number2, operator, expected_error):
+        game = Game(id="65c83135-18a7-4556-9bd2-d15b77532133")
 
-    # def test_make_move_service_divide_non_divisible(self, mock_game_with_state_factory):
-    #     sample_game = mock_game_with_state_factory(board=['10', '8', '7', '2'])
+        with pytest.raises(Exception) as exc_info:
+            GameService.make_move(game=game, number1=number1, number2=number2, operator=operator)
+        print(exc_info.value)
+        assert str(exc_info.value) == str(expected_error)
 
-    #     with pytest.raises(Exception) as exc_info:
-    #         GameService.make_move(game=sample_game, number1="8", number2="7", operator="div")
-        
-    #     assert  "Can't divide evenly" in str(exc_info)
-
-        
-
-
-
-        
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        # fake_game = mocker.Mock()
-        # fake_game.id = "65c83135-18a7-4556-9bd2-d15b77532133"
-
-        # fake_state = mocker.Mock()
-        # fake_state.id = "ddd1bde8-5edc-4419-b290-3c42915c63b9"
-        
-        # mock_session = mocker.patch("services.game_services.db.session")
-        # mock_session.flush.return_value = None
-        # mock_session.add.return_value = None
-        # mock_session.commit.return_value = None
-
-        # mocker.patch("services.game_services.Game", return_value=fake_game)
-        # mocker.patch("services.game_services.GameState", return_value=fake_state)
-
-        # GameService.create_game()
-
-        
-        # mock_session.add.assert_any_call(fake_state)
-        # mock_session.add.assert_any_call(fake_game)
-        # mock_session.flush.assert_called_once()
-        # mock_session.commit.assert_called()
-        # mock_format_response.assert_called_once_with(
-        #     game=fake_game,
-        #     message="Game Successfully Created",
-        #     status=GameStatuses.IN_PROGRESS
-        # )
-
-        
-    
-    
-    # def test_format_response(self, game1):
-        # sample_message = "Sample Message Here"
-
-        # response = GameService._format_response(
-        #     game=game1,
-        #     status=GameStatuses.IN_PROGRESS,
-        #     message=sample_message,
-        # )
-        # assert response == {
-        #     "game_id": game1.id,
-        #     "status": GameStatuses.value,
-        #     "message": sample_message,
-        #     "board": game1.board
-        # }
-
-
-    # @pytest.fixture(autouse=True)
-    # def test_transaction(app_context):
-    #     from app.models import db
-    #     connection = db
-
-
-    # @patch("app.services.game_services.db.session.add")
-    # @patch("app.services.game_services.db.session.flush")
-    # @patch("app.services.game_services.db.session.commit")
-    # def test_create_game(self, mock_commit, mock_flush, mock_add, app_context):
-    #     mock_commit.return_value = None
-    #     mock_add.return_value = None
-
-    #     json_response = GameService.create_game()
-        
-    #     print(json_response)
-
-
-
-
-    
